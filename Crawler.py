@@ -1,5 +1,6 @@
 import time
 import requests
+import json
 from bs4 import BeautifulSoup as soup
 from selenium import webdriver
 
@@ -19,8 +20,7 @@ class Crawler:
         self.driver.get(self.url) # 對網站發出請求
         
         self.login()
-        self.follow()
-        #page = soup(driver.page_source,'html.parser')
+        self.check_follow()
         self.close()
         
     def login(self):
@@ -37,6 +37,18 @@ class Crawler:
         for i in range(0, 3):
             follow_list[i].click()
             time.sleep(1)
+            
+    def check_follow(self):
+        time.sleep(3)
+        self.driver.get("https://www.instagram.com/graphql/query/?query_hash=d04b0a864b4b54837c0d870b0e77e076&variables=%7B%22id%22%3A%2233251935508%22%2C%22include_reel%22%3Atrue%2C%22fetch_mutual%22%3Afalse%2C%22first%22%3A24%7D")
+        time.sleep(3)
+        page = soup(self.driver.page_source,'html.parser')
+        text = page.find("pre").text
+        user_data = json.loads(text)["data"]["user"]["edge_follow"]["edges"]
+        
+        follow_name = []
+        for user in user_data:
+            follow_name.append(user["node"]["username"])
     
     def close(self):
         self.driver.close()
