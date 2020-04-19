@@ -7,6 +7,7 @@ from selenium import webdriver
 class Crawler:
     def __init__(self, url):
         self.url = url
+        self.follow_name = []
         
         file = open('C:/Users/m4104/Desktop/InstagramBot-project/userfile.txt','r')
         userfile = file.readlines()
@@ -20,6 +21,7 @@ class Crawler:
         self.driver.get(self.url) # 對網站發出請求
         
         self.login()
+        self.get_follow()
         self.check_follow()
         self.close()
         
@@ -38,7 +40,7 @@ class Crawler:
             follow_list[i].click()
             time.sleep(1)
             
-    def check_follow(self):
+    def get_follow(self):
         time.sleep(3)
         self.driver.get("https://www.instagram.com/graphql/query/?query_hash=d04b0a864b4b54837c0d870b0e77e076&variables=%7B%22id%22%3A%2233251935508%22%2C%22include_reel%22%3Atrue%2C%22fetch_mutual%22%3Afalse%2C%22first%22%3A24%7D")
         time.sleep(3)
@@ -46,9 +48,20 @@ class Crawler:
         text = page.find("pre").text
         user_data = json.loads(text)["data"]["user"]["edge_follow"]["edges"]
         
-        follow_name = []
         for user in user_data:
-            follow_name.append(user["node"]["username"])
+            self.follow_name.append(user["node"]["username"])
+            
+    def check_follow(self):
+        for name in self.follow_name:
+            url = "https://www.instagram.com/" + name
+            self.driver.get(url)
+            time.sleep(3)
+            page = soup(self.driver.page_source,'html.parser')
+            user_info = page.find_all("span",attrs={"class":"g47SY"})
+            follow_count = user_info[1]["title"]
+            print(follow_count)
+            break
+            
     
     def close(self):
         self.driver.close()
