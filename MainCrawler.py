@@ -1,5 +1,4 @@
 import time
-import requests
 import json
 from bs4 import BeautifulSoup as soup
 from selenium import webdriver
@@ -15,15 +14,10 @@ class Crawler:
         self.pwd = userfile[1].rstrip()
  
         chrome_options = webdriver.ChromeOptions() # 對Chrome瀏覽器設定
-        #chrome_options.add_argument('--headless') # 啟動無頭模式，不顯示瀏覽畫面
+        chrome_options.add_argument('--headless') # 啟動無頭模式，不顯示瀏覽畫面
         chrome_options.add_argument('user-agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36"') # 設定user agent
         self.driver = webdriver.Chrome(executable_path='C:/Users/m4104/Desktop/InstagramBot-project/chromedriver', chrome_options=chrome_options)
         self.driver.get(self.url) # 對網站發出請求
-        
-        self.login()
-        self.get_follow()
-        self.check_follow()
-        self.close()
         
     def login(self):
         time.sleep(3)
@@ -59,9 +53,7 @@ class Crawler:
             page = soup(self.driver.page_source,'html.parser')
             user_info = page.find_all("span",attrs={"class":"g47SY"})
             follow_count = user_info[1]["title"]
-            print(follow_count)
-            break
-            
+            print(name, ":", follow_count)
     
     def close(self):
         self.driver.close()

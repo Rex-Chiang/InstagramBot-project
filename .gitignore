@@ -1,3 +1,5 @@
 *.exe
 userfile.txt
 mostlike/
+myLog.log
+__pycache__/

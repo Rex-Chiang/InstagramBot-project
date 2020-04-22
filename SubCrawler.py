@@ -4,13 +4,15 @@ import requests
 from bs4 import BeautifulSoup as soup
 from urllib.request import urlretrieve
 
-class Crawler1:
+class Crawler:
     def __init__(self, url):
         self.url = url
         html = requests.get(self.url) # 對網站發出請求
         page = soup(html.text,'html.parser') # 解析html
         self.script = page.find_all("script")[4].text # 所需資料在第5個script標籤
-
+        if self.script == "window.__initialDataLoaded(window._sharedData);":
+            self.script = page.find_all("script")[3].text# 所需資料在第4個script標籤
+            
     def RE(self, content):
         # 定義被追蹤數、追蹤數、發文數的正則表達式
         FOLLOWre = re.compile(r"(edge_followed_by\":{\"count\":)(\d*)")
@@ -28,7 +30,7 @@ class Crawler1:
         # 文章圖片網址、愛心數的正則表達式   
         LIKEre = re.compile(r"(\"display_url\"\:\")(https:\/\/[\w\W]*)(\",\"gating_info[\w\W]*)(,\"edge_liked_by\":{\"count\":)(\d*)")
         content = content.split("shortcode") # 每篇文章是以屬性shortcode作分段，其中個人照片網址只存在於第一段
-
+        
         for article in content:
             # 取得文章圖片網址、愛心數
             getlike = LIKEre.search(article)
@@ -42,11 +44,15 @@ class Crawler1:
         return like
 
     def Statistic(self, like):
-        # 原本的like字典形式為[圖片網址:愛心數]
-        # 為了以愛心數做鍵查詢將字典形式改為[愛心數:圖片網址]
-        TransLike = {v : k for k, v in like.items()}
-        # 取得最高愛心數
-        Most_Liked_Posts = TransLike[max(like.values())]
+        try:
+            # 原本的like字典形式為[圖片網址:愛心數]
+            # 為了以愛心數做鍵查詢將字典形式改為[愛心數:圖片網址]
+            TransLike = {v : k for k, v in like.items()}
+            # 取得最高愛心數
+            Most_Liked_Posts = TransLike[max(like.values())]
+        except:
+            raise
+            return
         
         return Most_Liked_Posts
     
@@ -68,6 +74,6 @@ if __name__ == '__main__':
     ID = input("ID: ")
     url = "https://www.instagram.com/"+ID+"/"
     
-    Crawler = Crawler1(url)
+    Crawler = Crawler(url)
     followers, followed, article = Crawler.RE(Crawler.script)
     Most_Liked_Posts  = Crawler.Run(ID)
