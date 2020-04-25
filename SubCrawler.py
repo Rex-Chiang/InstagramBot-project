@@ -1,27 +1,22 @@
 import os
 import re
 import requests
-import MainCrawler
 import MySQLdb
 from bs4 import BeautifulSoup as soup
 from urllib.request import urlretrieve
 
 class Crawler:
-    def __init__(self, url):
-        self.url = url
-        html = requests.get(self.url)
+    def __init__(self):
+        self.conn = MySQLdb.connect(port=3306, user="root", db="instagram")
+        self.cur = self.conn.cursor()
+        
+    def get_url(self, url):
+        html = requests.get(url)
         page = soup(html.text,'html.parser')
         # Check the location of information that we need in fourth or fifth "script" tag.
         self.script = page.find_all("script")[4].text
         if self.script == "window.__initialDataLoaded(window._sharedData);":
             self.script = page.find_all("script")[3].text
-        
-        file = open('C:/Users/m4104/Desktop/InstagramBot-project/userfile.txt','r')
-        userfile = file.readlines()
-        pwd = userfile[2].rstrip()
-        
-        self.conn = MySQLdb.connect(port=3306, user='rex', passwd=pwd, db="instagram")
-        self.cur = self.conn.cursor()
             
     def RE(self, content):
         # Define regular expression of follow, follower, post count.
@@ -87,20 +82,17 @@ class Crawler:
         return self.cur.fetchall()
     
     def UpdateSQL(self, pic_url, name, likes_ct):
-        if self.check_pic(Most_Liked_Posts) and self.check_name(name):
-            print(1)
+        if self.check_pic(pic_url) and self.check_name(name):
             return
-        print(self.check_pic(Most_Liked_Posts))
-        print(self.check_name(name))
-        #elif (not self.check_pic(Most_Liked_Posts)) and self.check_name(name):
-        #    print(2)
-        #    sql = "UPDATE instagram.mostlike SET (url,name,likes) = (%s,%s,%s);"
-        #else:
-        #    print(3)
-        #    sql = "INSERT INTO instagram.mostlike (url,name,likes) VALUES (%s,%s,%s);"
-        #val = (pic_url, name, likes_ct)
-        #self.cur.execute(sql,val)            
-        #self.conn.commit()
+        elif (not self.check_pic(pic_url)) and self.check_name(name):
+            sql = "UPDATE instagram.mostlike SET url=%s,likes=%s WHERE name=%s;"
+        else:
+            sql = "INSERT INTO instagram.mostlike (url,likes,name) VALUES (%s,%s,%s);"
+        
+        self.SaveImage(pic_url, name)
+        val = (pic_url, likes_ct, name)
+        self.cur.execute(sql,val)            
+        self.conn.commit()
         
     def close(self):
         self.conn.close()
