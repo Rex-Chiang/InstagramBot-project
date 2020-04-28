@@ -17,8 +17,20 @@ class Crawler:
  
         chrome_options = webdriver.ChromeOptions() # Set Chrome browser
         #chrome_options.add_argument('--headless') # Start the headless mode
-        chrome_options.add_argument('user-agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36"')
-        chrome_options.add_experimental_option("mobileEmulation", {'deviceName': 'iPhone 8'})
+        #chrome_options.add_argument('user-agent="Mozilla/5.0 (Linux; Android 4.1.1; GT-N7100 Build/JRO03C) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/35.0.1916.138 Mobile Safari/537.36 T7/6.3"')
+        
+        chrome_options.add_argument("--auto-open-devtools-for-tabs")
+        chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        chrome_options.add_experimental_option('useAutomationExtension', False)
+        #chrome_options.add_experimental_option("mobileEmulation", {'deviceName': 'iPhone 6'})
+        WIDTH = 400
+        HEIGHT = 550
+        PIXEL_RATIO = 3.0
+        UA = 'Mozilla/5.0 (Linux; Android 4.1.1; GT-N7100 Build/JRO03C) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/35.0.1916.138 Mobile Safari/537.36 T7/6.3'
+        
+        mobileEmulation = {"deviceMetrics": {"width": WIDTH, "height": HEIGHT, "pixelRatio": PIXEL_RATIO}, "userAgent": UA}
+        chrome_options.add_experimental_option("mobileEmulation", mobileEmulation)
+        
         self.driver = webdriver.Chrome(executable_path='C:/Users/m4104/Desktop/InstagramBot-project/chromedriver', chrome_options=chrome_options)
         self.driver.get(self.url)
         
@@ -33,7 +45,7 @@ class Crawler:
         self.driver.get("https://www.instagram.com/explore/people/suggested/")
         time.sleep(3)
         follow_list = self.driver.find_elements_by_xpath("//div/div/button[contains(text(), '追蹤')]")
-        for i in range(0, 5):
+        for i in range(0, 10):
             follow_list[i].click()
             time.sleep(1)
             
@@ -66,25 +78,25 @@ class Crawler:
             if int(follow_count.replace(",", "")) < 1000:
                 self.un_follow()
                 self.follow_name.remove(name)
-                
-    def post(self):
-        time.sleep(3)
-        element = self.driver.find_element_by_tag_name('body')
-        element.send_keys(Keys.F12)
-       # builder = ActionChains(self.driver)
-       # builder.key_down(Keys.F12).perform()
-        time.sleep(3)
 
     def close(self):
         self.driver.close()
         
     def log(self):
-        time.sleep(3)
+        time.sleep(1.5)
         self.driver.find_element_by_xpath("//div/button[contains(text(), '登入')]").click()
-        time.sleep(3)
+        time.sleep(1.5)
         self.driver.find_element_by_xpath("//div/div/label/input[@name='username']").send_keys(self.user)
         self.driver.find_element_by_xpath("//div/div/label/input[@name='password']").send_keys(self.pwd)
         self.driver.find_element_by_xpath("//div/button/div[contains(text(), '登入')]").click()
+        time.sleep(3)
+        
+        
+        self.driver.find_element_by_xpath("//div/div/button[contains(text(), '稍後再說')]").click()
+        time.sleep(1.5)
+        self.driver.find_element_by_xpath("//div/button[contains(text(), '取消')]").click()
+        time.sleep(3)
+        self.driver.find_element_by_xpath("//div/svg[@aria-label='新貼文']").click()
         
 
 
