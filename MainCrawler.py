@@ -2,8 +2,6 @@ import time
 import json
 from bs4 import BeautifulSoup as soup
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
 
 class Crawler:
     def __init__(self, url):
@@ -83,21 +81,26 @@ class Crawler:
         self.driver.close()
         
     def log(self):
-        time.sleep(1.5)
+        time.sleep(5)
         self.driver.find_element_by_xpath("//div/button[contains(text(), '登入')]").click()
-        time.sleep(1.5)
+        time.sleep(5)
         self.driver.find_element_by_xpath("//div/div/label/input[@name='username']").send_keys(self.user)
         self.driver.find_element_by_xpath("//div/div/label/input[@name='password']").send_keys(self.pwd)
         self.driver.find_element_by_xpath("//div/button/div[contains(text(), '登入')]").click()
-        time.sleep(3)
+        time.sleep(5)
         
         
         self.driver.find_element_by_xpath("//div/div/button[contains(text(), '稍後再說')]").click()
-        time.sleep(1.5)
+        time.sleep(5)
         self.driver.find_element_by_xpath("//div/button[contains(text(), '取消')]").click()
-        time.sleep(3)
-        self.driver.find_element_by_xpath("//div/svg[@aria-label='新貼文']").click()
-        
+        time.sleep(5)
+        self.driver.find_element_by_xpath("//div/div[@data-testid='new-post-button']").click()
+        time.sleep(5)
+        self.driver.find_element_by_xpath("//div/form/input[@accept='image/jpeg']").send_keys('C:/Users/m4104/Desktop/InstagramBot-project/mostlike/u.710.png')
+        time.sleep(5)
+        self.driver.get(self.url)
+        self.driver.close()
+        # C:\Users\m4104\Desktop\InstagramBot-project\mostlike\u.710.png
 
 
 if __name__ == '__main__':
